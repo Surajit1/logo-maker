@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Logo Maker - Design Your Unique Logo</title>
-  <meta name="description" content="Create stunning logos with our free online logo maker. Design your unique logo with AnimationOdisha.">
-  <meta name="keywords" content="logo maker, design logo, free logo creator, online logo design">
+  <title>AO Logo Maker - Design Your Unique Logo</title>
+  <meta name="description" content="Create stunning logos with AnimationOdisha's professional logo maker. Design your unique brand identity with our advanced tools.">
+  <meta name="keywords" content="logo maker, design logo, free logo creator, online logo design, AnimationOdisha">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;500;600;700&family=Pacifico&family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;700&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
@@ -20,25 +20,44 @@
       padding: 0;
     }
     
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #4895ef;
+      --dark: #1e1e2c;
+      --light: #f8f9fa;
+    }
+    
     body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f9fafb;
-      color: #1f2937;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+      color: var(--dark);
       min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    .brand-gradient {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     }
     
     .logo-canvas {
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
       transition: all 0.3s ease;
+      background-size: 20px 20px;
+      background-image: 
+        linear-gradient(to right, rgba(0,0,0,0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0,0,0,0.03) 1px, transparent 1px);
     }
     
     .element-handle {
       cursor: move;
-      transition: transform 0.2s ease;
+      transition: all 0.3s ease;
     }
     
     .element-handle:hover {
-      transform: scale(1.02);
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      z-index: 20;
     }
     
     .element-handle:active {
@@ -56,12 +75,115 @@
     }
     
     .selected-element {
-      outline: 2px dashed #3b82f6;
+      outline: 2px dashed var(--accent);
+      z-index: 10;
+      animation: pulse 1.5s infinite;
     }
     
-    .history-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(67, 97, 238, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0); }
+    }
+    
+    .resize-handle {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: var(--primary);
+      border: 2px solid white;
+      border-radius: 50%;
+      z-index: 20;
+      cursor: pointer;
+    }
+    
+    .rotate-handle {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      cursor: grab;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+    
+    .template-card {
+      transition: all 0.3s ease;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    
+    .template-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .category-chip {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    
+    .category-chip:hover, .category-chip.active {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .zoom-controls {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+      background: white;
+      border-radius: 50px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    
+    .format-selector {
+      animation: slideIn 0.3s ease-out forwards;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    .sidebar-resize-handle {
+      position: absolute;
+      right: -3px;
+      top: 0;
+      height: 100%;
+      width: 6px;
+      cursor: col-resize;
+      z-index: 100;
+    }
+    
+    .sidebar-resize-handle:hover {
+      background: var(--accent);
+    }
+    
+    .panel-content {
+      transition: all 0.3s ease;
+    }
+    
+    .preview-mode .toolbar, .preview-mode .settings-panel {
+      transform: translateX(-100%);
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .preview-mode .canvas-container {
+      width: 100%;
+      max-width: 100%;
+    }
+    
+    .preview-mode .canvas-area {
+      max-width: 100%;
     }
     
     /* Custom scrollbar */
@@ -99,6 +221,36 @@
       .toolbar-section {
         padding: 0.75rem;
       }
+      
+      .sidebar-panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 280px;
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      
+      .sidebar-panel.active {
+        transform: translateX(0);
+      }
+      
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+      }
+      
+      .sidebar-overlay.active {
+        display: block;
+      }
     }
   </style>
 </head>
@@ -108,6 +260,103 @@
   <script type="text/babel">
     const { useState, useRef, useEffect } = React;
 
+    // Font options for text elements
+    const fontOptions = [
+      { value: 'Poppins', label: 'Poppins' },
+      { value: 'Roboto', label: 'Roboto' },
+      { value: 'Montserrat', label: 'Montserrat' },
+      { value: 'Pacifico', label: 'Pacifico' },
+      { value: 'Playfair Display', label: 'Playfair' },
+      { value: 'Lato', label: 'Lato' },
+      { value: 'Open Sans', label: 'Open Sans' },
+      { value: 'Raleway', label: 'Raleway' },
+    ];
+    
+    // Canvas size presets
+    const canvasPresets = [
+      { name: 'Logo (500x500)', width: 500, height: 500 },
+      { name: 'YouTube (1280x720)', width: 1280, height: 720 },
+      { name: 'Instagram (1080x1080)', width: 1080, height: 1080 },
+      { name: 'Facebook (1200x630)', width: 1200, height: 630 },
+      { name: 'Twitter (1200x675)', width: 1200, height: 675 },
+      { name: 'Pinterest (1000x1500)', width: 1000, height: 1500 },
+    ];
+    
+    // Gradient presets
+    const gradientPresets = [
+      { name: 'Ocean', value: 'linear-gradient(135deg, #43cea2 0%, #185a9d 100%)' },
+      { name: 'Sunset', value: 'linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%)' },
+      { name: 'Lavender', value: 'linear-gradient(135deg, #d66d75 0%, #e29587 100%)' },
+      { name: 'Emerald', value: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' },
+      { name: 'Royal', value: 'linear-gradient(135deg, #757f9a 0%, #d7dde8 100%)' },
+    ];
+    
+    // Template categories
+    const templateCategories = [
+      'All', 'Business', 'Entertainment', 'Fashion', 'Food', 'Technology', 'Health', 'Education', 'Spiritual'
+    ];
+    
+    // Templates for quick start
+    const templates = [
+      {
+        id: 1,
+        name: "Tech Startup",
+        category: "Technology",
+        elements: [
+          { type: "text", content: "TECHNOVA", fontSize: 48, fontFamily: "Poppins", color: "#2d3748", position: { x: 150, y: 200 } },
+          { type: "shape", shape: "rectangle", width: 400, height: 10, color: "#4361ee", position: { x: 50, y: 270 } }
+        ]
+      },
+      {
+        id: 2,
+        name: "Cafe Delight",
+        category: "Food",
+        elements: [
+          { type: "text", content: "CAFE DELIGHT", fontSize: 42, fontFamily: "Pacifico", color: "#4a5568", position: { x: 100, y: 180 } },
+          { type: "shape", shape: "circle", width: 100, height: 100, color: "#e53e3e", position: { x: 200, y: 280 } }
+        ]
+      },
+      {
+        id: 3,
+        name: "Fashion Boutique",
+        category: "Fashion",
+        elements: [
+          { type: "text", content: "BELLA", fontSize: 56, fontFamily: "Playfair Display", color: "#2d3748", position: { x: 180, y: 180 } },
+          { type: "text", content: "FASHION", fontSize: 24, fontFamily: "Raleway", color: "#718096", position: { x: 220, y: 240 } }
+        ]
+      },
+      {
+        id: 4,
+        name: "Yoga Studio",
+        category: "Health",
+        elements: [
+          { type: "text", content: "SERENITY", fontSize: 48, fontFamily: "Montserrat", color: "#2b6cb0", position: { x: 150, y: 200 } },
+          { type: "shape", shape: "circle", width: 80, height: 80, color: "#38a169", position: { x: 210, y: 280 } }
+        ]
+      }
+    ];
+    
+    // Export formats
+    const exportFormats = [
+      { id: 'png', name: 'PNG', description: 'High quality with transparent background' },
+      { id: 'jpg', name: 'JPG', description: 'Standard format for photos' },
+      { id: 'svg', name: 'SVG', description: 'Scalable vector format' },
+      { id: 'gif', name: 'GIF', description: 'For simple animations' },
+      { id: 'transparent-png', name: 'Transparent PNG', description: 'PNG with transparent background' },
+    ];
+    
+    // Icons for icon picker
+    const icons = [
+      { id: 1, name: 'Star', icon: 'fa-star', category: 'Shapes' },
+      { id: 2, name: 'Heart', icon: 'fa-heart', category: 'Shapes' },
+      { id: 3, name: 'Camera', icon: 'fa-camera', category: 'Objects' },
+      { id: 4, name: 'Globe', icon: 'fa-globe', category: 'Objects' },
+      { id: 5, name: 'Leaf', icon: 'fa-leaf', category: 'Nature' },
+      { id: 6, name: 'Coffee', icon: 'fa-mug-hot', category: 'Food' },
+      { id: 7, name: 'Music', icon: 'fa-music', category: 'Entertainment' },
+      { id: 8, name: 'Lightbulb', icon: 'fa-lightbulb', category: 'Business' },
+    ];
+
     const LogoMaker = () => {
       // App state
       const [elements, setElements] = useState([]);
@@ -115,18 +364,53 @@
       const [canvasBackground, setCanvasBackground] = useState('#ffffff');
       const [history, setHistory] = useState([{ elements: [], background: '#ffffff' }]);
       const [historyIndex, setHistoryIndex] = useState(0);
+      const [zoomLevel, setZoomLevel] = useState(1);
+      const [activePanel, setActivePanel] = useState('elements');
+      const [showFormatSelector, setShowFormatSelector] = useState(false);
+      const [selectedFormat, setSelectedFormat] = useState('png');
+      const [selectedCategory, setSelectedCategory] = useState('All');
+      const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+      const [previewMode, setPreviewMode] = useState(false);
+      const [sidebarWidth, setSidebarWidth] = useState(280);
+      const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+      
       const canvasRef = useRef(null);
+      const sidebarRef = useRef(null);
+      const isResizing = useRef(false);
       
       // Text element defaults
       const defaultTextElement = {
         content: 'Your Text',
-        fontSize: 24,
-        color: '#000000',
+        fontSize: 36,
+        fontFamily: 'Poppins',
+        color: '#2d3748',
         isBold: false,
-        alignment: 'left',
+        alignment: 'center',
         position: { x: 50, y: 50 }
       };
-
+      
+      // Initialize sidebar resizing
+      useEffect(() => {
+        const handleMouseMove = (e) => {
+          if (!isResizing.current) return;
+          
+          const newWidth = Math.max(200, Math.min(500, e.clientX));
+          setSidebarWidth(newWidth);
+        };
+        
+        const handleMouseUp = () => {
+          isResizing.current = false;
+        };
+        
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+        
+        return () => {
+          document.removeEventListener('mousemove', handleMouseMove);
+          document.removeEventListener('mouseup', handleMouseUp);
+        };
+      }, []);
+      
       // Save state to history
       const saveToHistory = () => {
         const newHistory = history.slice(0, historyIndex + 1);
@@ -180,8 +464,9 @@
             id: `image-${Date.now()}`,
             type: 'image',
             src: e.target.result,
-            width: 100,
-            height: 100,
+            width: 150,
+            height: 150,
+            rotation: 0,
             position: { x: 150, y: 150 }
           };
           
@@ -190,6 +475,41 @@
           setSelectedElementId(newElement.id);
         };
         reader.readAsDataURL(file);
+      };
+      
+      // Add shape element
+      const addShapeElement = (shape) => {
+        const newElement = {
+          id: `shape-${Date.now()}`,
+          type: 'shape',
+          shape: shape,
+          width: 100,
+          height: 100,
+          color: '#4361ee',
+          position: { x: 200, y: 200 },
+          rotation: 0
+        };
+        
+        saveToHistory();
+        setElements([...elements, newElement]);
+        setSelectedElementId(newElement.id);
+      };
+      
+      // Add icon element
+      const addIconElement = (icon) => {
+        const newElement = {
+          id: `icon-${Date.now()}`,
+          type: 'icon',
+          icon: icon,
+          color: '#4361ee',
+          size: 40,
+          position: { x: 200, y: 200 },
+          rotation: 0
+        };
+        
+        saveToHistory();
+        setElements([...elements, newElement]);
+        setSelectedElementId(newElement.id);
       };
 
       // Handle image upload
@@ -221,6 +541,34 @@
           setSelectedElementId(null);
         }
       };
+      
+      // Delete element by dragging to trash
+      const handleDropOnTrash = (e) => {
+        e.preventDefault();
+        const elementId = e.dataTransfer.getData("elementId");
+        if (elementId) {
+          saveToHistory();
+          setElements(elements.filter(el => el.id !== elementId));
+          if (selectedElementId === elementId) {
+            setSelectedElementId(null);
+          }
+        }
+      };
+      
+      // Apply template
+      const applyTemplate = (template) => {
+        saveToHistory();
+        setElements(template.elements.map(el => ({
+          ...el,
+          id: `${el.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        })));
+        setSelectedElementId(null);
+      };
+      
+      // Filter templates by category
+      const filteredTemplates = selectedCategory === 'All' 
+        ? templates 
+        : templates.filter(t => t.category === selectedCategory);
 
       // Handle canvas click (deselect)
       const handleCanvasClick = (e) => {
@@ -229,326 +577,717 @@
         }
       };
 
-      // Handle element drag
-      const handleElementDrag = (id, newPosition) => {
-        updateElement(id, { position: newPosition });
-      };
-
-      // Download canvas as PNG
+      // Download canvas as selected format
       const downloadCanvas = () => {
         if (canvasRef.current) {
-          html2canvas(canvasRef.current, { 
-            backgroundColor: canvasBackground,
-            scale: 2 // Higher quality
-          }).then(canvas => {
-            const link = document.createElement('a');
-            link.download = 'logo-maker-design.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-          });
+          const options = {
+            pixelRatio: 2,
+            backgroundColor: selectedFormat.includes('transparent') ? null : canvasBackground
+          };
+          
+          htmlToImage[selectedFormat === 'svg' ? 'toSvg' : selectedFormat.includes('png') ? 'toPng' : 'toJpeg'](canvasRef.current, options)
+            .then(dataUrl => {
+              const link = document.createElement('a');
+              link.download = `ao-logo.${selectedFormat === 'svg' ? 'svg' : selectedFormat.includes('png') ? 'png' : 'jpg'}`;
+              link.href = dataUrl;
+              link.click();
+            });
         }
       };
+      
+      // Zoom in/out
+      const zoomIn = () => setZoomLevel(prev => Math.min(prev + 0.1, 2));
+      const zoomOut = () => setZoomLevel(prev => Math.max(prev - 0.1, 0.5));
+      const resetZoom = () => setZoomLevel(1);
 
       // Get selected element
       const selectedElement = elements.find(el => el.id === selectedElementId);
+      
+      // Canvas dimensions
+      const [canvasSize, setCanvasSize] = useState({ width: 500, height: 500 });
+      
+      // Update canvas size
+      const updateCanvasSize = (width, height) => {
+        setCanvasSize({ width, height });
+      };
 
       return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
+        <div className={`min-h-screen bg-gray-50 flex flex-col ${previewMode ? 'preview-mode' : ''}`}>
           {/* Header */}
-          <header className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-4 shadow-md">
+          <header className="brand-gradient text-white p-4 shadow-md">
             <div className="container mx-auto flex flex-col md:flex-row items-center justify-between">
               <div className="flex items-center space-x-3 mb-3 md:mb-0">
-                <div className="bg-white text-blue-600 font-bold w-10 h-10 rounded-full flex items-center justify-center">
-                  LM
+                <div className="bg-white text-blue-600 font-bold w-12 h-12 rounded-full flex items-center justify-center text-xl">
+                  AO
                 </div>
-                <h1 className="text-2xl font-bold">logo-maker</h1>
+                <div>
+                  <h1 className="text-2xl font-bold">AO Logo Maker</h1>
+                  <p className="text-blue-100 text-sm">Design your unique logo with AnimationOdisha</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-lg font-medium text-center md:text-left">Design your unique logo with AnimationOdisha</h2>
+              
+              <div className="flex items-center gap-3 flex-wrap justify-center">
+                <button 
+                  onClick={() => setPreviewMode(!previewMode)}
+                  className="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 flex items-center"
+                >
+                  <i className={`fas ${previewMode ? 'fa-edit' : 'fa-eye'} mr-2`}></i>
+                  {previewMode ? 'Edit Mode' : 'Preview Mode'}
+                </button>
+                
+                <button 
+                  onClick={handleUndo}
+                  disabled={historyIndex <= 0}
+                  className={`p-2 rounded-lg font-medium flex items-center ${
+                    historyIndex > 0 
+                      ? 'bg-blue-500 text-white hover:bg-blue-600' 
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  <i className="fas fa-undo mr-2"></i>
+                  <span className="hidden md:inline">Undo</span>
+                </button>
+                
+                <button 
+                  onClick={handleRedo}
+                  disabled={historyIndex >= history.length - 1}
+                  className={`p-2 rounded-lg font-medium flex items-center ${
+                    historyIndex < history.length - 1 
+                      ? 'bg-blue-500 text-white hover:bg-blue-600' 
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  <i className="fas fa-redo mr-2"></i>
+                  <span className="hidden md:inline">Redo</span>
+                </button>
+                
+                <button 
+                  onClick={() => setShowFormatSelector(true)}
+                  className="bg-white text-blue-600 px-4 py-2 rounded-lg font-medium hover:bg-blue-50 flex items-center"
+                >
+                  <i className="fas fa-download mr-2"></i>
+                  <span>Download</span>
+                </button>
               </div>
             </div>
           </header>
 
           {/* Main Content */}
-          <main className="flex-grow flex flex-col md:flex-row p-4 gap-4 container mx-auto mobile-flex-col">
-            {/* Toolbar */}
-            <div className="bg-white rounded-xl shadow-md p-4 w-full md:w-64 flex-shrink-0">
-              <Toolbar 
-                addTextElement={addTextElement}
-                handleImageUpload={handleImageUpload}
-                canvasBackground={canvasBackground}
-                setCanvasBackground={(color) => {
-                  saveToHistory();
-                  setCanvasBackground(color);
-                }}
-                selectedElement={selectedElement}
-                updateElement={updateElement}
-                deleteElement={deleteElement}
-                handleUndo={handleUndo}
-                handleRedo={handleRedo}
-                canUndo={historyIndex > 0}
-                canRedo={historyIndex < history.length - 1}
-              />
+          <main className="flex-grow flex flex-col md:flex-row p-4 gap-4 container mx-auto mobile-flex-col relative">
+            {/* Mobile sidebar toggle */}
+            <button 
+              className="md:hidden fixed top-4 left-4 z-50 bg-white p-3 rounded-full shadow-lg text-blue-600"
+              onClick={() => setMobileSidebarOpen(true)}
+            >
+              <i className="fas fa-bars"></i>
+            </button>
+            
+            {/* Sidebar overlay for mobile */}
+            <div 
+              className={`sidebar-overlay ${mobileSidebarOpen ? 'active' : ''}`} 
+              onClick={() => setMobileSidebarOpen(false)}
+            ></div>
+            
+            {/* Left Sidebar */}
+            <div 
+              ref={sidebarRef}
+              className={`sidebar-panel bg-white rounded-xl shadow-md p-4 flex-shrink-0 ${mobileSidebarOpen ? 'active' : ''}`}
+              style={{ width: sidebarCollapsed ? '60px' : `${sidebarWidth}px`, transition: 'width 0.3s' }}
+            >
+              <div 
+                className="sidebar-resize-handle"
+                onMouseDown={() => isResizing.current = true}
+              ></div>
+              
+              <div className="flex justify-between items-center mb-4">
+                {!sidebarCollapsed && (
+                  <h2 className="text-xl font-bold text-gray-800">Design Tools</h2>
+                )}
+                <div className="flex">
+                  <button 
+                    className="text-gray-500 hover:text-gray-700"
+                    onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                  >
+                    <i className={`fas ${sidebarCollapsed ? 'fa-expand' : 'fa-compress'}`}></i>
+                  </button>
+                  <button 
+                    className="md:hidden text-gray-500 ml-2"
+                    onClick={() => setMobileSidebarOpen(false)}
+                  >
+                    <i className="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+              
+              {!sidebarCollapsed && (
+                <>
+                  <div className="flex border-b mb-4">
+                    <button 
+                      className={`flex-1 py-2 text-center ${activePanel === 'elements' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
+                      onClick={() => setActivePanel('elements')}
+                    >
+                      <i className="fas fa-shapes mr-1"></i>
+                    </button>
+                    <button 
+                      className={`flex-1 py-2 text-center ${activePanel === 'templates' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
+                      onClick={() => setActivePanel('templates')}
+                    >
+                      <i className="fas fa-layer-group mr-1"></i>
+                    </button>
+                    <button 
+                      className={`flex-1 py-2 text-center ${activePanel === 'fonts' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
+                      onClick={() => setActivePanel('fonts')}
+                    >
+                      <i className="fas fa-font mr-1"></i>
+                    </button>
+                    <button 
+                      className={`flex-1 py-2 text-center ${activePanel === 'icons' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
+                      onClick={() => setActivePanel('icons')}
+                    >
+                      <i className="fas fa-icons mr-1"></i>
+                    </button>
+                    <button 
+                      className={`flex-1 py-2 text-center ${activePanel === 'presets' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`}
+                      onClick={() => setActivePanel('presets')}
+                    >
+                      <i className="fas fa-prescription-bottle mr-1"></i>
+                    </button>
+                  </div>
+                  
+                  <div className="panel-content">
+                    {activePanel === 'elements' ? (
+                      <div className="space-y-6">
+                        <div className="space-y-3">
+                          <h3 className="font-bold text-lg text-gray-800 flex items-center">
+                            <i className="fas fa-plus-circle mr-2 text-blue-500"></i>Add Elements
+                          </h3>
+                          <div className="grid grid-cols-2 gap-2">
+                            <button 
+                              onClick={addTextElement}
+                              className="bg-blue-100 text-blue-700 py-3 rounded-lg font-medium hover:bg-blue-200 transition-colors tool-btn flex flex-col items-center justify-center"
+                            >
+                              <i className="fas fa-font text-xl mb-1"></i>
+                              <span>Text</span>
+                            </button>
+                            
+                            <label className="bg-blue-100 text-blue-700 py-3 rounded-lg font-medium hover:bg-blue-200 transition-colors tool-btn flex flex-col items-center justify-center cursor-pointer">
+                              <i className="fas fa-image text-xl mb-1"></i>
+                              <span>Image</span>
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                className="hidden" 
+                                onChange={handleImageUpload}
+                              />
+                            </label>
+                            
+                            <button 
+                              onClick={() => addShapeElement('rectangle')}
+                              className="bg-blue-100 text-blue-700 py-3 rounded-lg font-medium hover:bg-blue-200 transition-colors tool-btn flex flex-col items-center justify-center"
+                            >
+                              <i className="fas fa-square text-xl mb-1"></i>
+                              <span>Rectangle</span>
+                            </button>
+                            
+                            <button 
+                              onClick={() => addShapeElement('circle')}
+                              className="bg-blue-100 text-blue-700 py-3 rounded-lg font-medium hover:bg-blue-200 transition-colors tool-btn flex flex-col items-center justify-center"
+                            >
+                              <i className="fas fa-circle text-xl mb-1"></i>
+                              <span>Circle</span>
+                            </button>
+                            
+                            <button 
+                              onClick={() => addShapeElement('line')}
+                              className="bg-blue-100 text-blue-700 py-3 rounded-lg font-medium hover:bg-blue-200 transition-colors tool-btn flex flex-col items-center justify-center col-span-2"
+                            >
+                              <i className="fas fa-minus text-xl mb-1"></i>
+                              <span>Line</span>
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <div 
+                          className="bg-red-100 border-2 border-dashed border-red-300 rounded-lg p-4 text-center"
+                          onDrop={handleDropOnTrash}
+                          onDragOver={(e) => e.preventDefault()}
+                        >
+                          <i className="fas fa-trash text-red-500 text-2xl mb-2"></i>
+                          <p className="text-red-700 font-medium">Drag here to delete</p>
+                        </div>
+                      </div>
+                    ) : activePanel === 'templates' ? (
+                      <div className="space-y-4">
+                        <h3 className="font-bold text-lg text-gray-800">Templates</h3>
+                        
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {templateCategories.map(category => (
+                            <div
+                              key={category}
+                              className={`category-chip px-3 py-1 text-sm rounded-full border ${
+                                selectedCategory === category ? 'active bg-blue-500 text-white border-blue-500' : 'bg-white border-gray-300'
+                              }`}
+                              onClick={() => setSelectedCategory(category)}
+                            >
+                              {category}
+                            </div>
+                          ))}
+                        </div>
+                        
+                        <div className="space-y-4">
+                          {filteredTemplates.map(template => (
+                            <div 
+                              key={template.id}
+                              className="template-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm cursor-pointer"
+                              onClick={() => applyTemplate(template)}
+                            >
+                              <div className="p-3 bg-gray-50 border-b">
+                                <h4 className="font-bold text-gray-800">{template.name}</h4>
+                                <span className="text-xs text-gray-500 bg-blue-100 px-2 py-1 rounded-full">{template.category}</span>
+                              </div>
+                              <div className="p-4 flex justify-center items-center h-32">
+                                <div className="relative bg-gray-100 w-full h-full flex items-center justify-center">
+                                  {template.elements.map((el, idx) => {
+                                    if (el.type === 'text') {
+                                      return (
+                                        <div 
+                                          key={idx}
+                                          style={{
+                                            position: 'absolute',
+                                            left: `${el.position.x / 5}px`,
+                                            top: `${el.position.y / 5}px`,
+                                            fontSize: `${el.fontSize / 3}px`,
+                                            color: el.color,
+                                            fontFamily: el.fontFamily,
+                                            fontWeight: el.isBold ? 'bold' : 'normal'
+                                          }}
+                                        >
+                                          {el.content}
+                                        </div>
+                                      );
+                                    }
+                                    if (el.type === 'shape') {
+                                      return (
+                                        <div 
+                                          key={idx}
+                                          style={{
+                                            position: 'absolute',
+                                            left: `${el.position.x / 5}px`,
+                                            top: `${el.position.y / 5}px`,
+                                            width: `${el.width / 3}px`,
+                                            height: `${el.height / 3}px`,
+                                            backgroundColor: el.color,
+                                            borderRadius: el.shape === 'circle' ? '50%' : '0'
+                                          }}
+                                        ></div>
+                                      );
+                                    }
+                                    return null;
+                                  })}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : activePanel === 'fonts' ? (
+                      <div className="space-y-4">
+                        <h3 className="font-bold text-lg text-gray-800">Font Library</h3>
+                        
+                        <div className="grid grid-cols-1 gap-3">
+                          {fontOptions.map((font, index) => (
+                            <div 
+                              key={index}
+                              className="p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 hover:bg-blue-50 transition-all"
+                              onClick={() => {
+                                if (selectedElement?.type === 'text') {
+                                  updateElement(selectedElement.id, { fontFamily: font.value });
+                                }
+                              }}
+                              style={{ fontFamily: font.value }}
+                            >
+                              <div className="font-bold">{font.label}</div>
+                              <div className="text-sm text-gray-600">The quick brown fox jumps over the lazy dog</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : activePanel === 'icons' ? (
+                      <div className="space-y-4">
+                        <h3 className="font-bold text-lg text-gray-800">Icon Library</h3>
+                        
+                        <div className="grid grid-cols-4 gap-3">
+                          {icons.map(icon => (
+                            <div 
+                              key={icon.id}
+                              className="p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 hover:bg-blue-50 transition-all flex flex-col items-center"
+                              onClick={() => addIconElement(icon.icon)}
+                            >
+                              <i className={`fas ${icon.icon} text-2xl text-blue-600 mb-2`}></i>
+                              <div className="text-xs text-center">{icon.name}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : activePanel === 'presets' ? (
+                      <div className="space-y-4">
+                        <h3 className="font-bold text-lg text-gray-800">Presets</h3>
+                        
+                        <div className="space-y-3">
+                          <h4 className="font-medium text-gray-700">Canvas Size</h4>
+                          <div className="grid grid-cols-1 gap-2">
+                            {canvasPresets.map((preset, index) => (
+                              <button
+                                key={index}
+                                className="text-left p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all"
+                                onClick={() => updateCanvasSize(preset.width, preset.height)}
+                              >
+                                <div className="font-medium">{preset.name}</div>
+                                <div className="text-sm text-gray-600">{preset.width} x {preset.height} pixels</div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-3">
+                          <h4 className="font-medium text-gray-700">Background Gradients</h4>
+                          <div className="grid grid-cols-2 gap-2">
+                            {gradientPresets.map((gradient, index) => (
+                              <div 
+                                key={index}
+                                className="h-16 rounded cursor-pointer border"
+                                style={{ background: gradient.value }}
+                                onClick={() => {
+                                  saveToHistory();
+                                  setCanvasBackground(gradient.value);
+                                }}
+                                title={gradient.name}
+                              ></div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Canvas Area */}
-            <div className="flex-grow flex flex-col">
-              <div className="bg-gray-100 rounded-xl shadow-inner p-4 flex-grow flex items-center justify-center">
-                <div 
-                  ref={canvasRef}
-                  className="relative bg-white shadow-lg w-full max-w-3xl aspect-square logo-canvas"
-                  style={{ backgroundColor: canvasBackground }}
-                  onClick={handleCanvasClick}
-                >
-                  {elements.map((element) => (
-                    <CanvasElement
-                      key={element.id}
-                      element={element}
-                      isSelected={selectedElementId === element.id}
-                      onSelect={() => setSelectedElementId(element.id)}
-                      onDrag={handleElementDrag}
-                    />
-                  ))}
+            <div className="flex-grow flex flex-col canvas-container">
+              <div className="bg-gray-100 rounded-xl shadow-inner p-4 flex-grow flex items-center justify-center canvas-area">
+                <div className="relative overflow-auto max-w-full max-h-full">
+                  <div 
+                    ref={canvasRef}
+                    className="logo-canvas relative bg-white"
+                    style={{ 
+                      backgroundColor: canvasBackground,
+                      backgroundImage: canvasBackground.startsWith('linear') ? canvasBackground : undefined,
+                      width: `${canvasSize.width * zoomLevel}px`,
+                      height: `${canvasSize.height * zoomLevel}px`,
+                      transform: `scale(${zoomLevel})`,
+                      transformOrigin: 'top left'
+                    }}
+                    onClick={handleCanvasClick}
+                  >
+                    {elements.map((element) => (
+                      <CanvasElement
+                        key={element.id}
+                        element={element}
+                        isSelected={selectedElementId === element.id}
+                        onSelect={() => setSelectedElementId(element.id)}
+                        onUpdate={(updates) => updateElement(element.id, updates)}
+                        zoomLevel={zoomLevel}
+                      />
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Zoom Controls */}
+                <div className="zoom-controls flex flex-col">
+                  <button onClick={zoomIn} className="p-3 text-gray-700 hover:bg-gray-100">
+                    <i className="fas fa-plus"></i>
+                  </button>
+                  <button onClick={resetZoom} className="p-3 text-gray-700 hover:bg-gray-100 border-t border-b border-gray-200">
+                    {Math.round(zoomLevel * 100)}%
+                  </button>
+                  <button onClick={zoomOut} className="p-3 text-gray-700 hover:bg-gray-100">
+                    <i className="fas fa-minus"></i>
+                  </button>
                 </div>
               </div>
-              
-              {/* Download Button */}
-              <div className="mt-4 flex justify-center">
-                <button 
-                  onClick={downloadCanvas}
-                  className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white px-6 py-3 rounded-full font-medium shadow-md hover:shadow-lg transition-all tool-btn"
-                >
-                  <i className="fas fa-download mr-2"></i>Download Logo as PNG
-                </button>
-              </div>
             </div>
+
+            {/* Right Settings Panel */}
+            {selectedElement && (
+              <div className="bg-white rounded-xl shadow-md p-4 w-full md:w-80 flex-shrink-0 settings-panel">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-bold text-lg text-gray-800">
+                    {selectedElement.type === 'text' ? 'Text Settings' : 
+                     selectedElement.type === 'image' ? 'Image Settings' : 
+                     selectedElement.type === 'icon' ? 'Icon Settings' : 
+                     'Shape Settings'}
+                  </h3>
+                  <button
+                    onClick={deleteElement}
+                    className="bg-red-100 text-red-700 px-3 py-1 rounded-lg text-sm"
+                  >
+                    <i className="fas fa-trash mr-1"></i> Delete
+                  </button>
+                </div>
+                
+                {selectedElement.type === 'text' && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">Text Content</label>
+                      <input
+                        type="text"
+                        value={selectedElement.content}
+                        onChange={(e) => updateElement(selectedElement.id, { content: e.target.value })}
+                        className="w-full border rounded px-3 py-2"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm text-gray-700 mb-1">Font Size</label>
+                        <input
+                          type="range"
+                          min="12"
+                          max="120"
+                          value={selectedElement.fontSize}
+                          onChange={(e) => updateElement(selectedElement.id, { fontSize: parseInt(e.target.value) })}
+                          className="w-full"
+                        />
+                        <div className="text-center text-sm mt-1">{selectedElement.fontSize}px</div>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm text-gray-700 mb-1">Font Family</label>
+                        <select
+                          className="w-full border rounded px-2 py-2"
+                          value={selectedElement.fontFamily}
+                          onChange={(e) => updateElement(selectedElement.id, { fontFamily: e.target.value })}
+                        >
+                          {fontOptions.map(font => (
+                            <option key={font.value} value={font.value}>{font.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">Text Color</label>
+                      <div className="flex items-center gap-2">
+                        <input 
+                          type="color" 
+                          value={selectedElement.color}
+                          onChange={(e) => updateElement(selectedElement.id, { color: e.target.value })}
+                          className="w-10 h-10 cursor-pointer"
+                        />
+                        <input 
+                          type="text" 
+                          value={selectedElement.color}
+                          onChange={(e) => updateElement(selectedElement.id, { color: e.target.value })}
+                          className="border rounded px-2 py-1 flex-grow"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() => updateElement(selectedElement.id, { isBold: !selectedElement.isBold })}
+                        className={`py-2 rounded-lg font-medium flex items-center justify-center ${
+                          selectedElement.isBold 
+                            ? 'bg-blue-100 text-blue-700' 
+                            : 'bg-gray-100 text-gray-700'
+                        }`}
+                      >
+                        <i className="fas fa-bold mr-2"></i>Bold
+                      </button>
+                      
+                      <div className="flex gap-1">
+                        {['left', 'center', 'right'].map(align => (
+                          <button
+                            key={align}
+                            onClick={() => updateElement(selectedElement.id, { alignment: align })}
+                            className={`flex-1 p-2 rounded-lg flex items-center justify-center ${
+                              selectedElement.alignment === align 
+                                ? 'bg-blue-100 text-blue-700' 
+                                : 'bg-gray-100 text-gray-700'
+                            }`}
+                            title={`Align ${align}`}
+                          >
+                            {align === 'left' && <i className="fas fa-align-left"></i>}
+                            {align === 'center' && <i className="fas fa-align-center"></i>}
+                            {align === 'right' && <i className="fas fa-align-right"></i>}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {(selectedElement.type === 'image' || selectedElement.type === 'shape' || selectedElement.type === 'icon') && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">Size</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="range"
+                          min="20"
+                          max="500"
+                          value={selectedElement.width || selectedElement.size || 100}
+                          onChange={(e) => {
+                            const updates = { 
+                              width: selectedElement.type === 'icon' ? undefined : parseInt(e.target.value),
+                              size: selectedElement.type === 'icon' ? parseInt(e.target.value) : undefined
+                            };
+                            updateElement(selectedElement.id, updates);
+                          }}
+                          className="w-full"
+                        />
+                        <span className="text-sm w-16">
+                          {selectedElement.type === 'icon' ? selectedElement.size : selectedElement.width}px
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">Rotation</label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="range"
+                          min="0"
+                          max="360"
+                          value={selectedElement.rotation || 0}
+                          onChange={(e) => updateElement(selectedElement.id, { rotation: parseInt(e.target.value) })}
+                          className="w-full"
+                        />
+                        <span className="text-sm w-16">{selectedElement.rotation || 0}°</span>
+                      </div>
+                    </div>
+                    
+                    {(selectedElement.type === 'shape' || selectedElement.type === 'icon') && (
+                      <div>
+                        <label className="block text-sm text-gray-700 mb-1">Color</label>
+                        <div className="flex items-center gap-2">
+                          <input 
+                            type="color" 
+                            value={selectedElement.color}
+                            onChange={(e) => updateElement(selectedElement.id, { color: e.target.value })}
+                            className="w-10 h-10 cursor-pointer"
+                          />
+                          <input 
+                            type="text" 
+                            value={selectedElement.color}
+                            onChange={(e) => updateElement(selectedElement.id, { color: e.target.value })}
+                            className="border rounded px-2 py-1 flex-grow"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </main>
 
           {/* Footer */}
-          <footer className="bg-gray-800 text-white p-4 text-center text-sm mt-4">
-            <p>© {new Date().getFullYear()} Logo Maker. All rights reserved.</p>
-          </footer>
-        </div>
-      );
-    };
-
-    // Toolbar Component
-    const Toolbar = ({ 
-      addTextElement, 
-      handleImageUpload, 
-      canvasBackground, 
-      setCanvasBackground,
-      selectedElement,
-      updateElement,
-      deleteElement,
-      handleUndo,
-      handleRedo,
-      canUndo,
-      canRedo
-    }) => {
-      return (
-        <div className="space-y-6">
-          <div className="space-y-3 toolbar-section">
-            <h3 className="font-bold text-lg text-gray-800 flex items-center">
-              <i className="fas fa-plus-circle mr-2 text-blue-500"></i>Add Elements
-            </h3>
-            <div className="flex gap-2">
-              <button 
-                onClick={addTextElement}
-                className="flex-1 bg-blue-100 text-blue-700 py-2 rounded-lg font-medium hover:bg-blue-200 transition-colors tool-btn flex items-center justify-center"
-              >
-                <i className="fas fa-font mr-2"></i>Text
-              </button>
+          <footer className="bg-gray-900 text-white p-6 mt-6">
+            <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
+              <div className="mb-4 md:mb-0">
+                <div className="flex items-center">
+                  <div className="bg-white text-blue-600 font-bold w-8 h-8 rounded-full flex items-center justify-center mr-2">
+                    AO
+                  </div>
+                  <h3 className="text-xl font-bold">AO Logo Maker</h3>
+                </div>
+                <p className="text-gray-400 mt-2">Design your unique brand identity with professional tools</p>
+              </div>
               
-              <label className="flex-1 bg-blue-100 text-blue-700 py-2 rounded-lg font-medium hover:bg-blue-200 transition-colors tool-btn flex items-center justify-center cursor-pointer">
-                <i className="fas fa-image mr-2"></i>Image
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  className="hidden" 
-                  onChange={handleImageUpload}
-                />
-              </label>
-            </div>
-          </div>
-
-          <div className="space-y-3 toolbar-section">
-            <h3 className="font-bold text-lg text-gray-800 flex items-center">
-              <i className="fas fa-palette mr-2 text-purple-500"></i>Canvas
-            </h3>
-            <div className="space-y-2">
-              <label className="block text-sm text-gray-700">Background Color</label>
-              <div className="flex items-center gap-2">
-                <input 
-                  type="color" 
-                  value={canvasBackground}
-                  onChange={(e) => setCanvasBackground(e.target.value)}
-                  className="w-10 h-10 cursor-pointer"
-                />
-                <input 
-                  type="text" 
-                  value={canvasBackground}
-                  onChange={(e) => setCanvasBackground(e.target.value)}
-                  className="border rounded px-2 py-1 text-sm w-24"
-                />
+              <div className="text-center">
+                <p className="text-gray-300 italic">"We Love To Design Your Dream"</p>
+                <p className="text-gray-400 mt-2">© 2025 AnimationOdisha. All rights reserved.</p>
+              </div>
+              
+              <div className="flex space-x-4 mt-4 md:mt-0">
+                <a href="#" className="text-gray-400 hover:text-white">
+                  <i className="fab fa-facebook-f"></i>
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white">
+                  <i className="fab fa-twitter"></i>
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white">
+                  <i className="fab fa-instagram"></i>
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white">
+                  <i className="fab fa-linkedin-in"></i>
+                </a>
               </div>
             </div>
-          </div>
+          </footer>
 
-          {/* History Controls */}
-          <div className="space-y-3 toolbar-section">
-            <h3 className="font-bold text-lg text-gray-800 flex items-center">
-              <i className="fas fa-history mr-2 text-green-500"></i>History
-            </h3>
-            <div className="flex gap-2">
-              <button 
-                onClick={handleUndo}
-                disabled={!canUndo}
-                className={`flex-1 py-2 rounded-lg font-medium flex items-center justify-center ${
-                  canUndo 
-                    ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' 
-                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                } history-btn`}
-              >
-                <i className="fas fa-undo mr-2"></i>Undo
-              </button>
-              <button 
-                onClick={handleRedo}
-                disabled={!canRedo}
-                className={`flex-1 py-2 rounded-lg font-medium flex items-center justify-center ${
-                  canRedo 
-                    ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' 
-                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                } history-btn`}
-              >
-                <i className="fas fa-redo mr-2"></i>Redo
-              </button>
-            </div>
-          </div>
-
-          {/* Element Editing */}
-          {selectedElement && (
-            <div className="space-y-3 pt-4 border-t border-gray-200 toolbar-section">
-              <h3 className="font-bold text-lg text-gray-800 flex items-center">
-                <i className="fas fa-sliders-h mr-2 text-yellow-500"></i>
-                {selectedElement.type === 'text' ? 'Text' : 'Image'} Settings
-              </h3>
-              
-              {selectedElement.type === 'text' && (
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm text-gray-700 mb-1">Text Content</label>
-                    <input
-                      type="text"
-                      value={selectedElement.content}
-                      onChange={(e) => updateElement(selectedElement.id, { content: e.target.value })}
-                      className="w-full border rounded px-3 py-2 text-sm"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm text-gray-700 mb-1">Font Size</label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="range"
-                        min="12"
-                        max="72"
-                        value={selectedElement.fontSize}
-                        onChange={(e) => updateElement(selectedElement.id, { fontSize: parseInt(e.target.value) })}
-                        className="w-full"
-                      />
-                      <span className="text-sm w-12">{selectedElement.fontSize}px</span>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm text-gray-700 mb-1">Text Color</label>
-                    <div className="flex items-center gap-2">
-                      <input 
-                        type="color" 
-                        value={selectedElement.color}
-                        onChange={(e) => updateElement(selectedElement.id, { color: e.target.value })}
-                        className="w-8 h-8 cursor-pointer"
-                      />
-                      <input 
-                        type="text" 
-                        value={selectedElement.color}
-                        onChange={(e) => updateElement(selectedElement.id, { color: e.target.value })}
-                        className="border rounded px-2 py-1 text-sm w-24"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={() => updateElement(selectedElement.id, { isBold: !selectedElement.isBold })}
-                      className={`flex-1 py-2 rounded-lg font-medium flex items-center justify-center ${
-                        selectedElement.isBold 
-                          ? 'bg-blue-100 text-blue-700' 
-                          : 'bg-gray-100 text-gray-700'
+          {/* Format Selector Modal */}
+          {showFormatSelector && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+              <div className="format-selector bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold text-gray-800">Download Options</h3>
+                  <button 
+                    className="text-gray-500 hover:text-gray-700"
+                    onClick={() => setShowFormatSelector(false)}
+                  >
+                    <i className="fas fa-times"></i>
+                  </button>
+                </div>
+                
+                <div className="space-y-4">
+                  {exportFormats.map(format => (
+                    <div 
+                      key={format.id}
+                      className={`p-4 rounded-lg border cursor-pointer transition-all ${
+                        selectedFormat === format.id 
+                          ? 'border-blue-500 bg-blue-50' 
+                          : 'border-gray-200 hover:border-blue-300'
                       }`}
+                      onClick={() => setSelectedFormat(format.id)}
                     >
-                      <i className="fas fa-bold mr-2"></i>Bold
-                    </button>
-                    
-                    <div className="flex gap-1">
-                      {['left', 'center', 'right'].map(align => (
-                        <button
-                          key={align}
-                          onClick={() => updateElement(selectedElement.id, { alignment: align })}
-                          className={`p-2 rounded-lg flex items-center ${
-                            selectedElement.alignment === align 
-                              ? 'bg-blue-100 text-blue-700' 
-                              : 'bg-gray-100 text-gray-700'
-                          }`}
-                          style={{ minWidth: '40px' }}
-                        >
-                          {align === 'left' && <i className="fas fa-align-left"></i>}
-                          {align === 'center' && <i className="fas fa-align-center"></i>}
-                          {align === 'right' && <i className="fas fa-align-right"></i>}
-                        </button>
-                      ))}
+                      <div className="flex items-center">
+                        <div className={`w-5 h-5 rounded-full border mr-3 flex items-center justify-center ${
+                          selectedFormat === format.id 
+                            ? 'border-blue-500 bg-blue-500' 
+                            : 'border-gray-300'
+                        }`}>
+                          {selectedFormat === format.id && <i className="fas fa-check text-white text-xs"></i>}
+                        </div>
+                        <div>
+                          <h4 className="font-bold">{format.name}</h4>
+                          <p className="text-gray-600 text-sm">{format.description}</p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              )}
-              
-              {selectedElement.type === 'image' && (
-                <div>
-                  <div className="mb-3">
-                    <img 
-                      src={selectedElement.src} 
-                      alt="Uploaded" 
-                      className="max-w-full h-24 object-contain mx-auto"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm text-gray-700 mb-1">Size</label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="range"
-                        min="50"
-                        max="300"
-                        value={selectedElement.width}
-                        onChange={(e) => updateElement(selectedElement.id, { 
-                          width: parseInt(e.target.value),
-                          height: parseInt(e.target.value) 
-                        })}
-                        className="w-full"
-                      />
-                      <span className="text-sm w-12">{selectedElement.width}px</span>
-                    </div>
-                  </div>
+                
+                <div className="mt-6 flex justify-end">
+                  <button 
+                    className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg mr-2"
+                    onClick={() => setShowFormatSelector(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    className="brand-gradient text-white px-4 py-2 rounded-lg font-medium hover:opacity-90 flex items-center"
+                    onClick={() => {
+                      downloadCanvas();
+                      setShowFormatSelector(false);
+                    }}
+                  >
+                    <i className="fas fa-download mr-2"></i> Download Now
+                  </button>
                 </div>
-              )}
-              
-              <button
-                onClick={deleteElement}
-                className="w-full bg-red-100 text-red-700 py-2 rounded-lg font-medium hover:bg-red-200 transition-colors flex items-center justify-center"
-              >
-                <i className="fas fa-trash mr-2"></i>Delete Element
-              </button>
+              </div>
             </div>
           )}
         </div>
@@ -556,10 +1295,14 @@
     };
 
     // Canvas Element Component
-    const CanvasElement = ({ element, isSelected, onSelect, onDrag }) => {
+    const CanvasElement = ({ element, isSelected, onSelect, onUpdate, zoomLevel }) => {
       const elementRef = useRef(null);
       const [isDragging, setIsDragging] = useState(false);
+      const [isResizing, setIsResizing] = useState(false);
+      const [isRotating, setIsRotating] = useState(false);
       const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+      const [resizeStart, setResizeStart] = useState({ width: 0, height: 0, x: 0, y: 0 });
+      const [rotateStart, setRotateStart] = useState({ angle: 0, x: 0, y: 0 });
 
       // Handle mouse down for dragging
       const handleMouseDown = (e) => {
@@ -587,18 +1330,69 @@
           const boundedX = Math.max(0, Math.min(x, containerRect.width - elementRef.current.offsetWidth));
           const boundedY = Math.max(0, Math.min(y, containerRect.height - elementRef.current.offsetHeight));
           
-          onDrag(element.id, { x: boundedX, y: boundedY });
+          onUpdate({ position: { x: boundedX, y: boundedY } });
+        }
+        
+        if (isResizing) {
+          const containerRect = elementRef.current.parentElement.getBoundingClientRect();
+          const deltaX = e.clientX - resizeStart.x;
+          const deltaY = e.clientY - resizeStart.y;
+          
+          const newWidth = Math.max(50, resizeStart.width + deltaX);
+          const newHeight = element.type === 'image' ? 'auto' : Math.max(50, resizeStart.height + deltaY);
+          
+          onUpdate({ 
+            width: newWidth,
+            height: newHeight
+          });
+        }
+        
+        if (isRotating) {
+          const containerRect = elementRef.current.parentElement.getBoundingClientRect();
+          const centerX = elementRef.current.offsetLeft + elementRef.current.offsetWidth / 2;
+          const centerY = elementRef.current.offsetTop + elementRef.current.offsetHeight / 2;
+          
+          const deltaX = e.clientX - containerRect.left - centerX;
+          const deltaY = e.clientY - containerRect.top - centerY;
+          
+          const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+          onUpdate({ rotation: Math.round(angle) });
         }
       };
 
-      // Handle mouse up to stop dragging
+      // Handle mouse up to stop interactions
       const handleMouseUp = () => {
         setIsDragging(false);
+        setIsResizing(false);
+        setIsRotating(false);
       };
 
-      // Add event listeners for dragging
+      // Handle resize start
+      const handleResizeStart = (e) => {
+        e.stopPropagation();
+        setIsResizing(true);
+        setResizeStart({
+          width: element.width,
+          height: element.height,
+          x: e.clientX,
+          y: e.clientY
+        });
+      };
+      
+      // Handle rotate start
+      const handleRotateStart = (e) => {
+        e.stopPropagation();
+        setIsRotating(true);
+        setRotateStart({
+          angle: element.rotation || 0,
+          x: e.clientX,
+          y: e.clientY
+        });
+      };
+
+      // Add event listeners for interactions
       useEffect(() => {
-        if (isDragging) {
+        if (isDragging || isResizing || isRotating) {
           window.addEventListener('mousemove', handleMouseMove);
           window.addEventListener('mouseup', handleMouseUp);
           return () => {
@@ -606,7 +1400,7 @@
             window.removeEventListener('mouseup', handleMouseUp);
           };
         }
-      }, [isDragging, dragOffset]);
+      }, [isDragging, isResizing, isRotating, dragOffset, resizeStart, rotateStart]);
 
       // Render text element
       if (element.type === 'text') {
@@ -614,6 +1408,7 @@
           left: `${element.position.x}px`,
           top: `${element.position.y}px`,
           fontSize: `${element.fontSize}px`,
+          fontFamily: element.fontFamily,
           color: element.color,
           fontWeight: element.isBold ? 'bold' : 'normal',
           textAlign: element.alignment,
@@ -650,7 +1445,8 @@
               position: 'absolute',
               cursor: 'move',
               width: `${element.width}px`,
-              height: `${element.height}px`
+              height: element.height === 'auto' ? 'auto' : `${element.height}px`,
+              transform: element.rotation ? `rotate(${element.rotation}deg)` : 'none'
             }}
             onMouseDown={handleMouseDown}
           >
@@ -658,7 +1454,107 @@
               src={element.src} 
               alt="Logo element" 
               className="w-full h-full object-contain pointer-events-none"
+              draggable="false"
             />
+            
+            {isSelected && (
+              <>
+                <div 
+                  className="resize-handle"
+                  style={{ right: '-6px', bottom: '-6px' }}
+                  onMouseDown={handleResizeStart}
+                ></div>
+                <div 
+                  className="rotate-handle"
+                  onMouseDown={handleRotateStart}
+                >
+                  <i className="fas fa-sync-alt"></i>
+                </div>
+              </>
+            )}
+          </div>
+        );
+      }
+      
+      // Render shape element
+      if (element.type === 'shape') {
+        const shapeStyle = {
+          borderRadius: element.shape === 'circle' ? '50%' : element.shape === 'line' ? '0' : '4px',
+          width: element.shape === 'line' ? `${element.width}px` : `${element.width}px`,
+          height: element.shape === 'line' ? '4px' : `${element.height}px`,
+          backgroundColor: element.color,
+          transform: element.rotation ? `rotate(${element.rotation}deg)` : 'none'
+        };
+        
+        return (
+          <div
+            ref={elementRef}
+            className={`element-handle ${isSelected ? 'selected-element' : ''}`}
+            style={{
+              left: `${element.position.x}px`,
+              top: `${element.position.y}px`,
+              position: 'absolute',
+              cursor: 'move',
+              ...shapeStyle
+            }}
+            onMouseDown={handleMouseDown}
+          >
+            {isSelected && (
+              <>
+                <div 
+                  className="resize-handle"
+                  style={{ right: '-6px', bottom: '-6px' }}
+                  onMouseDown={handleResizeStart}
+                ></div>
+                <div 
+                  className="rotate-handle"
+                  onMouseDown={handleRotateStart}
+                >
+                  <i className="fas fa-sync-alt"></i>
+                </div>
+              </>
+            )}
+          </div>
+        );
+      }
+      
+      // Render icon element
+      if (element.type === 'icon') {
+        return (
+          <div
+            ref={elementRef}
+            className={`element-handle ${isSelected ? 'selected-element' : ''}`}
+            style={{
+              left: `${element.position.x}px`,
+              top: `${element.position.y}px`,
+              position: 'absolute',
+              cursor: 'move',
+              width: `${element.size}px`,
+              height: `${element.size}px`,
+              transform: element.rotation ? `rotate(${element.rotation}deg)` : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onMouseDown={handleMouseDown}
+          >
+            <i className={`fas ${element.icon}`} style={{ fontSize: `${element.size}px`, color: element.color }}></i>
+            
+            {isSelected && (
+              <>
+                <div 
+                  className="resize-handle"
+                  style={{ right: '-6px', bottom: '-6px' }}
+                  onMouseDown={handleResizeStart}
+                ></div>
+                <div 
+                  className="rotate-handle"
+                  onMouseDown={handleRotateStart}
+                >
+                  <i className="fas fa-sync-alt"></i>
+                </div>
+              </>
+            )}
           </div>
         );
       }
